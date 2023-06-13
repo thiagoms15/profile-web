@@ -9,6 +9,7 @@ import { HomePageInfo } from '@/app/types/page-info'
 import { CMSIcon } from '@/app/components/cms-icon'
 import { RichText } from '@/app/components/rich-text'
 import { techBadgeAnimation } from '@/app/lib/animations'
+import Typewriter from "typewriter-effect";
 
 type HeroSectionProps = {
   homeInfo: HomePageInfo
@@ -27,7 +28,19 @@ export const HeroSection = ({ homeInfo }: HeroSectionProps) => {
       <div className="container flex items-start justify-between flex-col-reverse lg:flex-row">
         <div className="w-full lg:max-w-[530px]">
           <p className="font-mono text-emerald-400">Hello, my name is</p>
-          <h2 className="text-4xl font-medium mt-2">Thiago</h2>
+
+          <div className="text-4xl font-medium mt-2">
+            <Typewriter
+                onInit={(typewriter) => {
+                    typewriter
+                        .typeString('<span style="color: #34d399">// Thiago</span>')
+                        .pauseFor(1000)
+                        .deleteAll()
+                        .typeString('Thiago')
+                        .start();
+                }}
+            />
+          </div>
 
           <div className="text-gray-400 my-6 text-sm sm:text-base">
             <RichText content={homeInfo.introduction.raw} />
