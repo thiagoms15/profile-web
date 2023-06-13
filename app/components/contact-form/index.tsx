@@ -1,63 +1,87 @@
 'use client'
 
-import { HiArrowNarrowRight } from "react-icons/hi"
-import { Button } from "../button"
-import { SectionTitle } from "../section-title"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from 'zod'
+import { SectionTitle } from '../section-title'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Button } from '../button'
+import { HiArrowNarrowRight } from 'react-icons/hi'
+import { motion } from 'framer-motion'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
+import { fadeUpAnimation } from '@/app/lib/animations'
 
 const contactFormSchema = z.object({
-    name: z.string().min(3).max(100),
-    email: z.string().email(),
-    message: z.string().min(1).max(500),
+  name: z.string().min(3).max(100),
+  email: z.string().email(),
+  message: z.string().min(1).max(500),
 })
 
-type contactFormData = z.infer<typeof contactFormSchema>
+type ContactFormData = z.infer<typeof contactFormSchema>
 
 export const ContactForm = () => {
-    const { handleSubmit, register } = useForm<contactFormData>({
-        resolver: zodResolver(contactFormSchema)
-        });
-    const onSubmit = (data: contactFormData) => {
-    };
+  const {
+    handleSubmit,
+    register,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactFormSchema),
+  })
 
-    return (
-    <section id="contact" className="py-16 px-6 md:py-32 flex items-center justify-center bg-gray-950">
+  const onSubmit = async (data: ContactFormData) => {
+    try {
+      await axios.post('/api/contact', data)
+      toast.success('Message sent with success!')
+      reset()
+    } catch (error) {
+      toast.error('Error to send the message. Please, try again.')
+    }
+  }
+
+  return (
+    <section
+      className="py-16 px-6 md:py-32 flex items-center justify-center bg-gray-950"
+      id="contact"
+    >
       <div className="w-full max-w-[420px] mx-auto">
         <SectionTitle
-        subtitle="contact"
-        title="Let's work together"
-        className="items-center text-center"
+          subtitle="contact"
+          title="Wanna Get in Touch With Me?"
+          className="items-center text-center"
         />
-
-        <form
-        className="mt-12 w-full flex flex-col gap-4"
-        onSubmit={handleSubmit(onSubmit)}
+        <motion.form
+          className="mt-12 w-full flex flex-col gap-4"
+          onSubmit={handleSubmit(onSubmit)}
+          {...fadeUpAnimation}
         >
           <input
-          placeholder="Name"
-          className="w-full h-14 bg-gray-800 rounded-lg placeholder:text-gray-400 text-gray-50 p-4 focus:outline-none focus:ring-2 ring-emerald-600"
-          {...register('name')}
+            placeholder="Name"
+            className="w-full h-14 bg-gray-800 rounded-lg placeholder:text-gray-400 text-gray-50 p-4 focus:outline-none focus:ring-2 ring-emerald-600"
+            {...register('name')}
           />
           <input
-          placeholder="Email"
-          className="w-full h-14 bg-gray-800 rounded-lg placeholder:text-gray-400 text-gray-50 p-4 focus:outline-none focus:ring-2 ring-emerald-600"
-          {...register('email')}
+            placeholder="Email"
+            type="email"
+            className="w-full h-14 bg-gray-800 rounded-lg placeholder:text-gray-400 text-gray-50 p-4 focus:outline-none focus:ring-2 ring-emerald-600"
+            {...register('email')}
           />
           <textarea
-          placeholder="Message"
-          className="resize-none w-full h-[138px] bg-gray-800 rounded-lg placeholder:text-gray-400 text-gray-50 p-4 focus:outline-none focus:ring-2 ring-emerald-600"
-          maxLength={500}
-          {...register('message')}
+            placeholder="Write a message"
+            className="resize-none w-full h-[138px] bg-gray-800 rounded-lg placeholder:text-gray-400 text-gray-50 p-4 focus:outline-none focus:ring-2 ring-emerald-600"
+            {...register('message')}
+            maxLength={500}
           />
 
-          <Button className="w-max mx-auto shadow-button mt-6">
-            Send message
-            <HiArrowNarrowRight size={18} />
-          </Button>
-        </form>
+          <div className="relative w-max mx-auto mt-6">
+            <Button className="z-[2] relative" disabled={isSubmitting}>
+              Send message
+              <HiArrowNarrowRight size={18} />
+            </Button>
+            <div className="absolute inset-0 bg-emerald-600 blur-2xl opacity-20" />
+          </div>
+        </motion.form>
       </div>
     </section>
-    )
+  )
 }
